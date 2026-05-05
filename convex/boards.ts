@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { posthog } from "./posthog";
 
 const BOARD_COLORS = [
   "from-emerald-400 to-teal-500",
@@ -33,11 +34,17 @@ export const create = mutation({
     const name = args.name.trim();
     if (name.length === 0) throw new Error("Board name is required");
     const color = BOARD_COLORS[Math.floor(Math.random() * BOARD_COLORS.length)];
-    return await ctx.db.insert("boards", {
+    const boardId = await ctx.db.insert("boards", {
       name,
       ownerId: args.ownerId,
       color,
     });
+    await posthog.capture(ctx, {
+      distinctId: args.ownerId,
+      event: "board_created",
+      properties: { boardId, name },
+    });
+    return boardId;
   },
 });
 
@@ -53,6 +60,7 @@ export const rename = mutation({
 export const remove = mutation({
   args: { boardId: v.id("boards") },
   handler: async (ctx, args) => {
+    const board = await ctx.db.get("boards", args.boardId);
     const cards = await ctx.db
       .query("cards")
       .withIndex("by_board", (q) => q.eq("boardId", args.boardId))
@@ -66,5 +74,12 @@ export const remove = mutation({
       await ctx.db.delete("cards", c._id);
     }
     await ctx.db.delete("boards", args.boardId);
+    if (board) {
+      await posthog.capture(ctx, {
+        distinctId: board.ownerId,
+        event: "board_deleted",
+        properties: { boardId: args.boardId, name: board.name },
+      });
+    }
   },
 });

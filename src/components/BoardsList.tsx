@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import type { CurrentUser } from "../useAuth";
 import { useToastedMutation } from "../useToastedMutation";
+import { useFeatureFlag } from "../useFeatureFlag";
 
 export function BoardsList({
   user,
@@ -15,6 +16,7 @@ export function BoardsList({
   const boards = useQuery(api.boards.list);
   const createBoard = useToastedMutation(api.boards.create);
   const removeBoard = useToastedMutation(api.boards.remove);
+  const showWelcomeBanner = useFeatureFlag("welcome-banner", user._id);
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -33,6 +35,12 @@ export function BoardsList({
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      {showWelcomeBanner && (
+        <div className="mb-6 rounded-xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/10 to-sky-500/10 p-4 text-sm text-white/90 backdrop-blur">
+          <span className="font-semibold">Welcome, {user.name}!</span>{" "}
+          Glad to have you on board. Create a board below to get started.
+        </div>
+      )}
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Boards</h1>

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { columnStatusValidator } from "./schema";
+import { posthog } from "./posthog";
 
 export const listByBoard = query({
   args: { boardId: v.id("boards") },
@@ -39,7 +40,7 @@ export const create = mutation({
       .take(1);
     const order = last.length === 0 ? 1000 : last[0].order + 1000;
 
-    return await ctx.db.insert("cards", {
+    const cardId = await ctx.db.insert("cards", {
       boardId: args.boardId,
       status: args.status,
       title,
@@ -47,6 +48,16 @@ export const create = mutation({
       order,
       authorId: args.authorId,
     });
+    await posthog.capture(ctx, {
+      distinctId: args.authorId,
+      event: "card_created",
+      properties: {
+        cardId,
+        boardId: args.boardId,
+        status: args.status,
+      },
+    });
+    return cardId;
   },
 });
 
@@ -92,9 +103,22 @@ export const move = mutation({
     order: v.number(),
   },
   handler: async (ctx, args) => {
+    const card = await ctx.db.get("cards", args.cardId);
     await ctx.db.patch("cards", args.cardId, {
       status: args.status,
       order: args.order,
     });
+    if (card && card.status !== args.status) {
+      await posthog.capture(ctx, {
+        distinctId: card.authorId,
+        event: "card_moved",
+        properties: {
+          cardId: args.cardId,
+          boardId: card.boardId,
+          fromStatus: card.status,
+          toStatus: args.status,
+        },
+      });
+    }
   },
 });

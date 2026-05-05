@@ -1,12 +1,23 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { posthog } from "./posthog";
 
 export const create = mutation({
   args: { name: v.string() },
   handler: async (ctx, args) => {
     const name = args.name.trim();
     if (name.length === 0) throw new Error("Name is required");
-    return await ctx.db.insert("users", { name });
+    const userId = await ctx.db.insert("users", { name });
+    await posthog.identify(ctx, {
+      distinctId: userId,
+      properties: { name },
+    });
+    await posthog.capture(ctx, {
+      distinctId: userId,
+      event: "user_signed_up",
+      properties: { name },
+    });
+    return userId;
   },
 });
 
