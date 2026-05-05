@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import type { CurrentUser } from "../useAuth";
+import { useToastedMutation } from "../useToastedMutation";
 
 export function BoardsList({
   user,
@@ -12,8 +13,8 @@ export function BoardsList({
   onOpen: (id: Id<"boards">) => void;
 }) {
   const boards = useQuery(api.boards.list);
-  const createBoard = useMutation(api.boards.create);
-  const removeBoard = useMutation(api.boards.remove);
+  const createBoard = useToastedMutation(api.boards.create);
+  const removeBoard = useToastedMutation(api.boards.remove);
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
 

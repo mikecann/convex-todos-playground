@@ -17,11 +17,12 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import type { CurrentUser } from "../useAuth";
 import { CardModal } from "./CardModal";
+import { useToastedMutation } from "../useToastedMutation";
 
 type Status = "todo" | "in_progress" | "done";
 
@@ -43,8 +44,8 @@ export function Board({
   user: CurrentUser;
 }) {
   const cards = useQuery(api.cards.listByBoard, { boardId });
-  const createCard = useMutation(api.cards.create);
-  const moveCard = useMutation(api.cards.move).withOptimisticUpdate(
+  const createCard = useToastedMutation(api.cards.create);
+  const moveCard = useToastedMutation(api.cards.move).withOptimisticUpdate(
     (localStore, { cardId, status, order }) => {
       const existing = localStore.getQuery(api.cards.listByBoard, { boardId });
       if (!existing) return;

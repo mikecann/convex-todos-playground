@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import { useToastedMutation } from "./useToastedMutation";
 
 const STORAGE_KEY = "kanban.userId";
 
@@ -17,7 +18,7 @@ export function useAuth() {
   });
 
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
-  const createUser = useMutation(api.users.create);
+  const createUser = useToastedMutation(api.users.create);
 
   // If the stored userId no longer exists in the DB (e.g. the backend was reset),
   // clear it from localStorage. The render path treats user === null as signed

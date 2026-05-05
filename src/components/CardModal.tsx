@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { CurrentUser } from "../useAuth";
+import { useToastedMutation } from "../useToastedMutation";
 
 const STATUS_LABEL: Record<"todo" | "in_progress" | "done", string> = {
   todo: "To Do",
@@ -21,10 +22,10 @@ export function CardModal({
 }) {
   const card = useQuery(api.cards.get, { cardId });
   const comments = useQuery(api.comments.listByCard, { cardId });
-  const updateCard = useMutation(api.cards.update);
-  const removeCard = useMutation(api.cards.remove);
-  const addComment = useMutation(api.comments.create);
-  const removeComment = useMutation(api.comments.remove);
+  const updateCard = useToastedMutation(api.cards.update);
+  const removeCard = useToastedMutation(api.cards.remove);
+  const addComment = useToastedMutation(api.comments.create);
+  const removeComment = useToastedMutation(api.comments.remove);
 
   // When editing, these hold the in-progress draft. null = not editing.
   const [titleDraft, setTitleDraft] = useState<string | null>(null);

@@ -31,6 +31,8 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const body = args.body.trim();
     if (body.length === 0) throw new Error("Comment is required");
+    if (body.toLowerCase().includes("dont like hedgehogs"))
+      throw new Error("Hedgehogs are great!");
     return await ctx.db.insert("comments", {
       cardId: args.cardId,
       authorId: args.authorId,
