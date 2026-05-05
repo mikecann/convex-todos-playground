@@ -1,40 +1,44 @@
-# Welcome to your Convex + React (Vite) app
+![alt text](docs/ss1.png)
 
-This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
+# Convex Todos Playground
 
-After the initial setup (<2 minutes) you'll have a working full-stack app using:
+A personal playground for experimenting with [Convex](https://convex.dev/) features. The current build is a Trello-style Kanban app — boards with To Do / In Progress / Done columns, drag-and-drop cards, descriptions, and comments — but the goal is to keep iterating here as a sandbox for trying out new Convex capabilities (components, agents, migrations, scheduled functions, auth flows, etc.).
 
-- Convex as your backend (database, server logic)
-- [React](https://react.dev/) as your frontend (web page interactivity)
-- [Vite](https://vitest.dev/) for optimized web hosting
-- [Tailwind](https://tailwindcss.com/) for building great looking accessible UI
+## Stack
 
-## Get started
+- **Backend:** Convex (database, queries, mutations, real-time subscriptions)
+- **Frontend:** React 19 + Vite
+- **Drag & drop:** [`@dnd-kit`](https://dndkit.com/)
+- **Styling:** Tailwind CSS v4
 
-If you just cloned this codebase and didn't use `npm create convex`, run:
+## Getting started
 
-```
-npm install
-npm run dev
-```
-
-If you're reading this README on GitHub and want to use this template, run:
-
-```
-npm create convex@latest -- -t react-vite
+```bash
+bun install
+bun run dev
 ```
 
-## Learn more
+The first run will prompt you to create or select a Convex deployment.
 
-To learn more about developing your project with Convex, check out:
+## Auth
 
-- The [Tour of Convex](https://docs.convex.dev/get-started) for a thorough introduction to Convex principles.
-- The rest of [Convex docs](https://docs.convex.dev/) to learn about all Convex features.
-- [Stack](https://stack.convex.dev/) for in-depth articles on advanced topics.
+There's no real authentication. On first load you're asked for a name; a `users` row is created and its id is stored in `localStorage`. This is a deliberate playground simplification — anyone with a user id can act as that user, so don't reuse this pattern in anything public.
 
-## Join the community
+## Project layout
 
-Join thousands of developers building full-stack apps with Convex:
+```
+convex/        Backend functions and schema
+  schema.ts    users, boards, cards, comments
+  boards.ts
+  cards.ts
+  comments.ts
+  users.ts
+src/
+  App.tsx      Hash-based routing between boards list and a board
+  useAuth.ts   localStorage-backed "auth"
+  components/  SignIn, TopBar, BoardsList, Board, CardModal
+```
 
-- Join the [Convex Discord community](https://convex.dev/community) to get help in real-time.
-- Follow [Convex on GitHub](https://github.com/get-convex/), star and contribute to the open-source implementation of Convex.
+## Future experiments
+
+Likely directions: Convex Auth, the migrations component, agent / workflow components, file storage, scheduled functions, and search indexes.
